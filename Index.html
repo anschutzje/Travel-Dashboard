@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --parchment:  #F7F3EE;
+  --parchment2: #EDE8E1;
+  --ink:        #1A1A2E;
+  --ink-light:  #4A4A6A;
+  --stamp:      #C97B6A;
+  --slate:      #4A6FA5;
+  --slate-light:#6B8FBF;
+  --rule:       rgba(26,26,46,0.10);
+  --card:       #FFFFFF;
+  --radius:     10px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── HEADER ─────────────────────────── */
+header {
+  background: var(--ink);
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--parchment);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.logo span {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--stamp);
+}
+
+/* ── SEARCH BAR ──────────────────────── */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex: 1;
+  max-width: 700px;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.search-field label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(247,243,238,0.45);
+}
+
+.search-field input {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: var(--parchment);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  padding: 8px 11px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+
+.search-field input::placeholder { color: rgba(247,243,238,0.35); }
+.search-field input:focus {
+  border-color: var(--stamp);
+  background: rgba(255,255,255,0.12);
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+.search-btn {
+  margin-top: 14px;
+  padding: 9px 22px;
+  background: var(--stamp);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+.search-btn:hover { background: #b86a59; }
+.search-btn:active { transform: scale(0.97); }
+
+/* ── API KEY NOTICE ──────────────────── */
+.api-bar {
+  background: var(--parchment2);
+  border-bottom: 1px solid var(--rule);
+  padding: 10px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  flex-wrap: wrap;
+}
+
+.api-bar strong { color: var(--ink); }
+
+.api-bar input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: var(--ink);
+  outline: none;
+}
+.api-bar input:focus { border-color: var(--slate); }
+
+.api-bar a { color: var(--slate); text-decoration: none; }
+.api-bar a:hover { text-decoration: underline; }
+
+/* ── MAIN LAYOUT ─────────────────────── */
+main {
+  padding: 36px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── EMPTY STATE ─────────────────────── */
+#empty-state {
+  text-align: center;
+  padding: 80px 24px;
+}
+
+.empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  opacity: 0.35;
+}
+
+.empty-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.empty-sub {
+  color: var(--ink-light);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+/* ── DESTINATION HEADER ──────────────── */
+#dest-header {
+  display: none;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.dest-watermark {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(3rem, 8vw, 6rem);
+  color: var(--ink);
+  opacity: 0.04;
+  line-height: 1;
+  position: absolute;
+  top: -12px;
+  left: -8px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+  user-select: none;
+}
+
+.dest-info {
+  position: relative;
+  padding-top: 8px;
+}
+
+.dest-city {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.dest-dates {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.dest-rule {
+  height: 2px;
+  background: linear-gradient(90deg, var(--stamp) 0%, transparent 60%);
+  margin-top: 12px;
+}
+
+/* ── TWO-COLUMN GRID ─────────────────── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  header { padding: 14px 16px; flex-wrap: wrap; }
+  .search-bar { max-width: 100%; }
+  main { padding: 24px 16px; }
+  .api-bar { padding: 10px 16px; }
+}
+
+/* ── CARDS ───────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+}
+
+.card-icon { font-size: 0.9rem; }
+
+/* ── WEATHER CARD ────────────────────── */
+#weather-card .card-body { padding: 20px; }
+
+.weather-now {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.w-icon { font-size: 3.2rem; line-height: 1; }
+
+.w-temp {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.w-desc {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  margin-top: 3px;
+}
+
+.w-meta {
+  display: flex;
+  gap: 14px;
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.w-meta-item { display: flex; align-items: center; gap: 5px; }
+
+.forecast-strip {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+}
+
+.fc-slot {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px;
+  border-radius: 7px;
+  background: var(--parchment);
+}
+
+.fc-day  { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 5px; }
+.fc-ico  { font-size: 1.3rem; margin-bottom: 4px; }
+.fc-hi   { font-size: 0.82rem; font-weight: 600; color: var(--stamp); }
+.fc-lo   { font-size: 0.72rem; color: var(--ink-light); }
+
+.temp-toggle {
+  display: flex;
+  gap: 0;
+  margin-left: auto;
+}
+.t-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-light);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.t-btn:first-child { border-radius: 4px 0 0 4px; }
+.t-btn:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
+.t-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* ── NEWS CARD ───────────────────────── */
+#news-card .card-body { padding: 0; }
+
+.news-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: background 0.12s;
+  text-decoration: none;
+  color: inherit;
+}
+.news-item:last-child { border-bottom: none; }
+.news-item:hover { background: var(--parchment); }
+
+.news-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--stamp);
+  opacity: 0.35;
+  line-height: 1.2;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: right;
+}
+
+.news-content { flex: 1; min-width: 0; }
+
+.news-title {
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+
+.news-meta {
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.news-source { font-weight: 600; }
+.news-age    { opacity: 0.7; }
+
+/* ── SKELETON / LOADING ──────────────── */
+.sk {
+  background: linear-gradient(90deg, var(--parchment2) 25%, #e8e3db 50%, var(--parchment2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+.sk-line { height: 13px; margin-bottom: 9px; }
+
+/* ── ERROR ───────────────────────────── */
+.err-msg {
+  padding: 20px;
+  font-size: 0.82rem;
+  color: #b04040;
+  line-height: 1.6;
+  background: #fff5f5;
+  border-radius: 6px;
+  margin: 12px;
+}
+
+/* ── NO KEY NOTICE ───────────────────── */
+.no-key {
+  padding: 24px 20px;
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+  text-align: center;
+}
+.no-key a { color: var(--slate); }
+
+/* ── FADE IN ─────────────────────────── */
+.fade-in {
+  animation: fadeIn 0.35s ease both;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER + SEARCH -->
+<header>
+  <div class="logo">trip<span>desk</span></div>
+
+  <div class="search-bar">
+    <div class="search-field" style="flex:2; min-width:160px;">
+      <label>Destination</label>
+      <input type="text" id="city-input" placeholder="e.g. Tokyo, Nashville, Rome…" autocomplete="off">
+    </div>
+    <div class="search-field">
+      <label>Arrival</label>
+      <input type="date" id="date-from">
+    </div>
+    <div class="search-field">
+      <label>Departure (optional)</label>
+      <input type="date" id="date-to">
+    </div>
+    <button class="search-btn" onclick="runSearch()">Look up →</button>
+  </div>
+</header>
+
+<!-- API KEY BAR -->
+<div class="api-bar">
+  <span>📰 <strong>News headlines</strong> — free key from
+    <a href="https://gnews.io/register" target="_blank">gnews.io</a>
+    (100 req/day, no credit card):</span>
+  <input type="password" id="gnews-key" placeholder="Paste GNews API key…">
+  <span style="opacity:0.6">Leave blank to skip news.</span>
+</div>
+
+<!-- MAIN -->
+<main>
+  <!-- Empty state -->
+  <div id="empty-state">
+    <div class="empty-icon">🌍</div>
+    <div class="empty-title">Where are you headed?</div>
+    <div class="empty-sub">Enter a city and travel dates above to see<br>weather forecasts and local news headlines.</div>
+  </div>
+
+  <!-- Destination header (hidden until search) -->
+  <div id="dest-header">
+    <div class="dest-watermark" id="dest-watermark"></div>
+    <div class="dest-info">
+      <div class="dest-city" id="dest-city"></div>
+      <div class="dest-dates" id="dest-dates"></div>
+    </div>
+    <div class="dest-rule"></div>
+  </div>
+
+  <!-- Dashboard grid -->
+  <div class="dash-grid" id="dash-grid" style="display:none">
+
+    <!-- Weather -->
+    <div class="card" id="weather-card">
+      <div class="card-header">
+        <span class="card-icon">🌡</span>
+        <span class="card-eyebrow">Weather</span>
+        <div class="temp-toggle" style="margin-left:auto">
+          <button class="t-btn active" id="btn-f" onclick="setUnit('F')">°F</button>
+          <button class="t-btn" id="btn-c" onclick="setUnit('C')">°C</button>
+        </div>
+      </div>
+      <div class="card-body" id="weather-body">
+        <div style="padding:20px">
+          <div class="sk sk-line" style="width:55%"></div>
+          <div class="sk sk-line" style="width:35%"></div>
+          <div class="sk sk-line" style="width:70%; margin-top:16px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- News -->
+    <div class="card" id="news-card">
+      <div class="card-header">
+        <span class="card-icon">📰</span>
+        <span class="card-eyebrow">Headlines</span>
+        <span id="news-location-tag" style="font-size:0.7rem;color:var(--ink-light);margin-left:auto"></span>
+      </div>
+      <div class="card-body" id="news-body">
+        <div style="padding:20px">
+          <div class="sk sk-line" style="width:80%"></div>
+          <div class="sk sk-line" style="width:55%"></div>
+          <div class="sk sk-line" style="width:75%; margin-top:16px"></div>
+          <div class="sk sk-line" style="width:60%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dash-grid -->
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let tempUnit = 'F';
+let lastWeatherData = null;
+
+// ─────────────────────────────────────────────
+//  INIT — restore saved key
+// ─────────────────────────────────────────────
+(function() {
+  const saved = localStorage.getItem('gnews_key');
+  if (saved) document.getElementById('gnews-key').value = saved;
+  // Default dates
+  const today = new Date();
+  const plus7 = new Date(today); plus7.setDate(today.getDate() + 7);
+  document.getElementById('date-from').value = toDateStr(today);
+  document.getElementById('date-to').value   = toDateStr(plus7);
+  // Enter key triggers search
+  document.getElementById('city-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runSearch();
+  });
+})();
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+function toDateStr(d) { return d.toISOString().split('T')[0]; }
+
+function fmtDateRange(from, to) {
+  const opts = { month: 'long', day: 'numeric', year: 'numeric' };
+  const a = new Date(from + 'T12:00:00').toLocaleDateString('en-US', opts);
+  if (!to || to === from) return a;
+  const b = new Date(to + 'T12:00:00').toLocaleDateString('en-US', opts);
+  return `${a} – ${b}`;
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const ms = Date.now() - new Date(iso);
+  const m = Math.floor(ms / 60000);
+  if (m < 60) return `${m}m ago`;
+  if (m < 1440) return `${Math.floor(m/60)}h ago`;
+  return `${Math.floor(m/1440)}d ago`;
+}
+
+function escHtml(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function descToIcon(desc) {
+  const s = (desc||'').toLowerCase();
+  if (s.includes('thunder') || s.includes('storm')) return '⛈️';
+  if (s.includes('blizzard') || s.includes('blowing snow')) return '🌨️';
+  if (s.includes('snow') || s.includes('sleet') || s.includes('ice pellet')) return '❄️';
+  if (s.includes('freezing')) return '🌨️';
+  if (s.includes('heavy rain') || s.includes('torrential')) return '🌧️';
+  if (s.includes('drizzle') || s.includes('light rain') || s.includes('patchy rain')) return '🌦️';
+  if (s.includes('rain') || s.includes('shower')) return '🌧️';
+  if (s.includes('fog') || s.includes('mist') || s.includes('haze')) return '🌫️';
+  if (s.includes('overcast')) return '☁️';
+  if (s.includes('cloudy')) return '🌤️';
+  if (s.includes('partly') || s.includes('partial')) return '⛅';
+  if (s.includes('sunny') || s.includes('clear')) return '☀️';
+  return '🌡️';
+}
+
+function fmtTemp(f, unit) {
+  const n = parseFloat(f);
+  if (unit === 'F') return Math.round(n) + '°';
+  return Math.round((n - 32) * 5/9) + '°';
+}
+
+// ─────────────────────────────────────────────
+//  MAIN SEARCH
+// ─────────────────────────────────────────────
+async function runSearch() {
+  const city    = document.getElementById('city-input').value.trim();
+  const dateFrom = document.getElementById('date-from').value;
+  const dateTo   = document.getElementById('date-to').value;
+  const gnewsKey = document.getElementById('gnews-key').value.trim();
+
+  if (!city) {
+    document.getElementById('city-input').focus();
+    return;
+  }
+
+  // Save key
+  if (gnewsKey) localStorage.setItem('gnews_key', gnewsKey);
+
+  // Show skeleton UI
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('dest-header').style.display = 'block';
+  document.getElementById('dash-grid').style.display   = 'grid';
+
+  document.getElementById('dest-watermark').textContent = city;
+  document.getElementById('dest-city').textContent = city;
+  document.getElementById('dest-dates').textContent = dateFrom
+    ? fmtDateRange(dateFrom, dateTo || dateFrom) : '';
+
+  setSkeletonWeather();
+  setSkeletonNews();
+
+  // Fire in parallel
+  await Promise.all([
+    loadWeather(city),
+    loadNews(city, gnewsKey)
+  ]);
+}
+
+// ─────────────────────────────────────────────
+//  WEATHER — wttr.in (CORS-safe, no key)
+// ─────────────────────────────────────────────
+function setSkeletonWeather() {
+  document.getElementById('weather-body').innerHTML = `
+    <div style="padding:20px">
+      <div class="sk sk-line" style="width:50%"></div>
+      <div class="sk sk-line" style="width:30%"></div>
+      <div class="sk sk-line" style="width:65%; margin-top:16px"></div>
+      <div class="sk sk-line" style="width:40%"></div>
+    </div>`;
+}
+
+async function loadWeather(city) {
+  const body = document.getElementById('weather-body');
+  try {
+    const url = `https://wttr.in/${encodeURIComponent(city)}?format=j1`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Weather service returned ${r.status}`);
+    const d = await r.json();
+
+    // Update city display with resolved name
+    const area = d.nearest_area?.[0];
+    if (area) {
+      const resolvedCity    = area.areaName?.[0]?.value || city;
+      const resolvedCountry = area.country?.[0]?.value || '';
+      const resolvedRegion  = area.region?.[0]?.value  || '';
+      const full = [resolvedCity, resolvedRegion, resolvedCountry].filter(Boolean).join(', ');
+      document.getElementById('dest-city').textContent = full;
+      document.getElementById('dest-watermark').textContent = resolvedCity;
+    }
+
+    lastWeatherData = d;
+    body.innerHTML = renderWeather(d, tempUnit);
+    body.classList.add('fade-in');
+  } catch(e) {
+    body.innerHTML = `<div class="err-msg">
+      Could not load weather for <strong>${escHtml(city)}</strong>.<br>
+      Try a more specific city name, e.g. "Paris, France" or "Springfield, IL".<br><br>
+      <em>Detail: ${escHtml(e.message)}</em>
+    </div>`;
+  }
+}
+
+function renderWeather(d, unit) {
+  const cur   = d.current_condition?.[0];
+  const daily = d.weather || [];
+  if (!cur) return `<div class="err-msg">Unexpected data from weather service.</div>`;
+
+  const tempF = cur.temp_F;
+  const desc  = cur.weatherDesc?.[0]?.value || '';
+  const icon  = descToIcon(desc);
+  const wind  = cur.windspeedMiles;
+  const humidity = cur.humidity;
+  const feelsF   = cur.FeelsLikeF;
+  const visKm    = cur.visibility;
+
+  // 3-day forecast
+  const fcHTML = daily.slice(0,3).map(day => {
+    const dt = new Date(day.date + 'T12:00:00');
+    const fdesc = day.hourly?.[4]?.weatherDesc?.[0]?.value || '';
+    return `<div class="fc-slot">
+      <div class="fc-day">${dt.toLocaleDateString('en-US',{weekday:'short'})}</div>
+      <div class="fc-ico">${descToIcon(fdesc)}</div>
+      <div class="fc-hi">${fmtTemp(day.maxtempF, unit)}</div>
+      <div class="fc-lo">${fmtTemp(day.mintempF, unit)}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card-body" style="padding:20px">
+    <div class="weather-now">
+      <div class="w-icon">${icon}</div>
+      <div>
+        <div class="w-temp">${fmtTemp(tempF, unit)}</div>
+        <div class="w-desc">${escHtml(desc)}</div>
+      </div>
+    </div>
+    <div class="w-meta">
+      <div class="w-meta-item">💧 <span>${humidity}% humidity</span></div>
+      <div class="w-meta-item">💨 <span>${wind} mph</span></div>
+      <div class="w-meta-item">🌡 <span>Feels ${fmtTemp(feelsF, unit)}</span></div>
+      <div class="w-meta-item">👁 <span>${visKm} km vis.</span></div>
+    </div>
+    <div class="forecast-strip">${fcHTML}</div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  TEMP UNIT TOGGLE
+// ─────────────────────────────────────────────
+function setUnit(unit) {
+  tempUnit = unit;
+  document.getElementById('btn-f').classList.toggle('active', unit === 'F');
+  document.getElementById('btn-c').classList.toggle('active', unit === 'C');
+  if (lastWeatherData) {
+    document.getElementById('weather-body').innerHTML = renderWeather(lastWeatherData, unit);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  NEWS — GNews API (CORS-safe, free key)
+// ─────────────────────────────────────────────
+function setSkeletonNews() {
+  document.getElementById('news-body').innerHTML = `
+    <div style="padding:20px">
+      ${[80,55,75,50,85].map(w=>`<div class="sk sk-line" style="width:${w}%;margin-bottom:12px"></div>`).join('')}
+    </div>`;
+}
+
+async function loadNews(city, key) {
+  const body = document.getElementById('news-body');
+  const tag  = document.getElementById('news-location-tag');
+
+  if (!key) {
+    body.innerHTML = `<div class="no-key">
+      Add a free <a href="https://gnews.io/register" target="_blank">GNews API key</a>
+      above to see local headlines.<br>Takes about 30 seconds to sign up.
+    </div>`;
+    return;
+  }
+
+  try {
+    // Search for news about this city
+    const q = encodeURIComponent(`"${city}"`);
+    const url = `https://gnews.io/api/v4/search?q=${q}&lang=en&max=7&apikey=${encodeURIComponent(key)}`;
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (d.errors) throw new Error(d.errors.join(', '));
+    const articles = d.articles || [];
+    tag.textContent = articles.length ? `${articles.length} stories` : '';
+
+    if (!articles.length) {
+      body.innerHTML = `<div class="no-key">No recent headlines found for <strong>${escHtml(city)}</strong>. Try a broader city name.</div>`;
+      return;
+    }
+
+    body.innerHTML = articles.map((a, i) => `
+      <a class="news-item fade-in" href="${escHtml(a.url)}" target="_blank" rel="noopener"
+         style="animation-delay:${i*0.05}s">
+        <div class="news-num">${i+1}</div>
+        <div class="news-content">
+          <div class="news-title">${escHtml(a.title)}</div>
+          <div class="news-meta">
+            <span class="news-source">${escHtml(a.source?.name || '')}</span>
+            <span class="news-age">${timeAgo(a.publishedAt)}</span>
+          </div>
+        </div>
+      </a>
+    `).join('');
+
+  } catch(e) {
+    body.innerHTML = `<div class="err-msg">
+      Could not load news.<br>
+      Check your GNews API key or try again in a moment.<br><br>
+      <em>Detail: ${escHtml(e.message)}</em>
+    </div>`;
+  }
+}
+</script>
+</body>
+</html>
