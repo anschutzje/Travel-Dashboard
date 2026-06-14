@@ -10,27 +10,49 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #060D1F;
-  --surface:  #0D1A35;
-  --surface2: #112040;
-  --border:   #1A3060;
-  --border2:  #1F3D7A;
-  --amber:    #4D9FE8;
-  --amber-dim:#1A3F6B;
-  --text:     #7EC8F5;
-  --muted:    #3A6B9A;
-  --dim:      #1E3F66;
-  --red:      #E05C5C;
-  --green:    #4CAF7D;
-  --radius:   8px;
+  --sky:      #5BB8F5;
+  --sky-dim:  #3A8CC7;
+  --sky-pale: #A8D8F0;
+  --text:     #D6EEFF;
+  --text-sub: #7BAFD4;
+  --muted:    #4A7FA8;
+  --dim:      #2A5070;
+  --red:      #FF6B6B;
+  --glass:    rgba(255,255,255,0.07);
+  --glass-hov:rgba(255,255,255,0.11);
+  --glass-bdr:rgba(255,255,255,0.14);
+  --glass-bdr2:rgba(255,255,255,0.22);
+  --radius:   12px;
 }
 
+/* ── BACKGROUND ── */
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
+  background: #020B18;
+  position: relative;
+}
+
+/* ambient gradient orbs */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(30,80,160,0.45) 0%, transparent 70%);
+  top: -150px; left: -100px;
+}
+body::after {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(10,60,130,0.35) 0%, transparent 70%);
+  bottom: -100px; right: -80px;
 }
 
 /* ── HEADER ── */
@@ -39,9 +61,11 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  height: 52px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  height: 54px;
+  border-bottom: 1px solid var(--glass-bdr);
+  background: rgba(2,11,24,0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 200;
@@ -51,122 +75,247 @@ header {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.92rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--amber);
+  color: var(--sky);
 }
-
-.wordmark span {
-  color: var(--muted);
-  font-weight: 300;
-}
+.wordmark span { color: var(--muted); font-weight: 300; }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
+
+/* key status pill */
+.key-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 5px 12px;
+  border: 1px solid var(--glass-bdr);
+  border-radius: 20px;
+  background: var(--glass);
+  transition: all 0.15s;
+  user-select: none;
+}
+.key-status:hover { border-color: var(--glass-bdr2); background: var(--glass-hov); color: var(--text); }
+
+.key-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.key-dot.active { background: #4ADE80; box-shadow: 0 0 6px rgba(74,222,128,0.6); }
 
 .unit-toggle {
   display: flex;
-  border: 1px solid var(--border2);
-  border-radius: 4px;
+  border: 1px solid var(--glass-bdr);
+  border-radius: 6px;
   overflow: hidden;
+  background: var(--glass);
 }
-
 .unit-btn {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  padding: 5px 10px;
+  padding: 5px 11px;
   background: transparent;
   color: var(--muted);
   border: none;
   cursor: pointer;
   transition: all 0.12s;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
-.unit-btn.active { background: var(--amber); color: var(--bg); }
+.unit-btn.active { background: var(--sky); color: #020B18; font-weight: 600; }
 
-.gnews-wrap {
-  display: flex;
+/* ── SETTINGS MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2,11,24,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 500;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: rgba(10,28,60,0.92);
+  border: 1px solid var(--glass-bdr2);
+  border-radius: 14px;
+  padding: 28px 28px 24px;
+  width: 420px;
+  max-width: calc(100vw - 40px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  animation: modalIn 0.2s ease both;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: none; }
 }
 
-.gnews-label {
-  font-size: 0.68rem;
+.modal-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sky);
+  margin-bottom: 6px;
+}
+
+.modal-sub {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.modal-sub a { color: var(--sky); text-decoration: none; }
+.modal-sub a:hover { text-decoration: underline; }
+
+.modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.modal-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+}
+.modal-input {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-bdr2);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.12s, background 0.12s;
+  width: 100%;
+}
+.modal-input:focus { border-color: var(--sky); background: rgba(255,255,255,0.08); }
+.modal-input::placeholder { color: var(--dim); }
+
+.modal-hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
-.gnews-input {
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-save {
+  flex: 1;
+  padding: 10px;
+  background: var(--sky);
+  color: #020B18;
+  border: none;
+  border-radius: 6px;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.72rem;
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 4px;
-  color: var(--text);
-  padding: 5px 10px;
-  width: 200px;
-  outline: none;
-  transition: border-color 0.12s;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s;
 }
-.gnews-input:focus { border-color: var(--amber); }
-.gnews-input::placeholder { color: var(--dim); }
+.modal-save:hover { background: var(--sky-pale); }
 
-/* ── BOARD (horizontal scroll) ── */
+.modal-cancel {
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid var(--glass-bdr);
+  color: var(--muted);
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.modal-cancel:hover { color: var(--text); border-color: var(--glass-bdr2); }
+
+.modal-clear {
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid rgba(255,107,107,0.25);
+  color: rgba(255,107,107,0.6);
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.modal-clear:hover { border-color: var(--red); color: var(--red); }
+
+/* ── BOARD ── */
 .board {
   display: flex;
-  gap: 16px;
-  padding: 28px 28px 40px;
+  gap: 18px;
+  padding: 32px 28px 48px;
   overflow-x: auto;
   align-items: flex-start;
-  min-height: calc(100vh - 52px);
+  min-height: calc(100vh - 54px);
   scroll-snap-type: x proximity;
+  position: relative;
+  z-index: 1;
 }
-
-.board::-webkit-scrollbar { height: 5px; }
-.board::-webkit-scrollbar-track { background: var(--surface); }
-.board::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.board::-webkit-scrollbar { height: 4px; }
+.board::-webkit-scrollbar-track { background: transparent; }
+.board::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
 .board::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* ── CITY CARD ── */
+/* ── CITY CARD (glass) ── */
 .city-card {
   flex-shrink: 0;
-  width: 300px;
+  width: 310px;
   scroll-snap-align: start;
-  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--glass-bdr2);
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   overflow: hidden;
-  animation: slideIn 0.25s ease both;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  animation: slideIn 0.28s cubic-bezier(0.22,1,0.36,1) both;
 }
-
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(24px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(28px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* card top band */
 .card-band {
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 16px 12px;
+  background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--glass-bdr);
+  padding: 16px 16px 13px;
   position: relative;
   overflow: hidden;
 }
 
-/* large city code watermark */
 .card-code {
   position: absolute;
-  right: -4px;
-  top: -8px;
+  right: -2px; top: -10px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 4rem;
+  font-size: 4.2rem;
   font-weight: 600;
-  color: var(--border2);
+  color: rgba(255,255,255,0.04);
   letter-spacing: -0.05em;
   line-height: 1;
   pointer-events: none;
@@ -176,9 +325,9 @@ header {
 
 .card-city {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--text);
   position: relative;
@@ -186,115 +335,92 @@ header {
 
 .card-dates {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.68rem;
-  color: var(--amber);
-  margin-top: 3px;
+  font-size: 0.67rem;
+  color: var(--sky);
+  margin-top: 4px;
   letter-spacing: 0.04em;
   position: relative;
 }
 
 .card-remove {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 11px; right: 11px;
   background: none;
   border: none;
-  color: var(--dim);
+  color: rgba(255,255,255,0.2);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1;
-  padding: 4px;
-  border-radius: 3px;
+  padding: 4px 6px;
+  border-radius: 4px;
   transition: color 0.12s, background 0.12s;
   z-index: 2;
 }
-.card-remove:hover { color: var(--red); background: rgba(224,92,92,0.1); }
+.card-remove:hover { color: var(--red); background: rgba(255,107,107,0.12); }
 
-/* ── WEATHER SECTION ── */
+/* ── WEATHER ── */
 .card-weather {
   padding: 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--glass-bdr);
 }
 
 .w-current {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 12px;
 }
-
-.w-icon { font-size: 2.4rem; line-height: 1; flex-shrink: 0; }
-
+.w-icon { font-size: 2.6rem; line-height: 1; flex-shrink: 0; }
 .w-right { flex: 1; }
 
 .w-temp {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 2.4rem;
+  font-size: 2.5rem;
   font-weight: 600;
   line-height: 1;
-  color: var(--amber);
-  /* flip animation on load */
+  color: var(--sky-pale);
 }
-
-.w-temp.flip {
-  animation: numFlip 0.4s steps(8) both;
-}
-@keyframes numFlip {
-  from { opacity: 0.2; }
-  to   { opacity: 1; }
-}
+.w-temp.flip { animation: numFlip 0.35s steps(7) both; }
+@keyframes numFlip { from { opacity: 0.15; } to { opacity: 1; } }
 
 .w-desc {
   font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 2px;
-  font-weight: 400;
+  color: var(--text-sub);
+  margin-top: 3px;
 }
 
 .w-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 12px;
+  gap: 5px 14px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem;
+  font-size: 0.63rem;
   color: var(--muted);
   margin-bottom: 14px;
 }
-
 .w-meta-row { display: flex; align-items: center; gap: 5px; }
-.w-meta-val { color: var(--text); }
+.w-meta-val { color: var(--text-sub); }
 
-/* forecast */
 .forecast {
   display: flex;
-  gap: 4px;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
+  gap: 5px;
+  border-top: 1px solid var(--glass-bdr);
+  padding-top: 13px;
 }
-
 .fc {
   flex: 1;
   text-align: center;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 7px 3px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-bdr);
+  border-radius: 7px;
+  padding: 8px 3px;
 }
+.fc-day { font-family:'IBM Plex Mono',monospace; font-size:0.54rem; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.fc-ico  { font-size:1.15rem; margin-bottom:3px; }
+.fc-hi   { font-family:'IBM Plex Mono',monospace; font-size:0.72rem; font-weight:600; color:var(--sky); }
+.fc-lo   { font-family:'IBM Plex Mono',monospace; font-size:0.62rem; color:var(--muted); }
 
-.fc-day {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.55rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-.fc-ico  { font-size: 1.1rem; margin-bottom: 3px; }
-.fc-hi   { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; font-weight: 600; color: var(--amber); }
-.fc-lo   { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--muted); }
-
-/* ── NEWS SECTION ── */
+/* ── NEWS ── */
 .card-news { padding: 0; }
 
 .news-hdr {
@@ -302,37 +428,34 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--glass-bdr);
 }
-
 .news-hdr-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
 }
-
 .news-count {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   color: var(--dim);
 }
 
-.news-list { padding: 4px 0; }
+.news-list { padding: 2px 0; }
 
 .news-item {
   display: block;
-  padding: 9px 16px;
-  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--glass-bdr);
   text-decoration: none;
   color: inherit;
   transition: background 0.1s;
-  cursor: pointer;
 }
 .news-item:last-child { border-bottom: none; }
-.news-item:hover { background: var(--surface2); }
+.news-item:hover { background: rgba(255,255,255,0.05); }
 
 .news-title {
   font-size: 0.78rem;
@@ -341,22 +464,23 @@ header {
   margin-bottom: 4px;
   font-weight: 400;
 }
-.news-item:hover .news-title { color: var(--amber); }
+.news-item:hover .news-title { color: var(--sky); }
 
 .news-byline {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   color: var(--muted);
   display: flex;
   gap: 8px;
 }
-
 .news-src { color: var(--dim); }
-.news-age { color: var(--muted); }
 
 /* ── SKELETON ── */
 .sk {
-  background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   border-radius: 3px;
@@ -364,15 +488,15 @@ header {
 @keyframes shimmer { to { background-position: -200% 0; } }
 .sk-line { height: 10px; margin-bottom: 8px; }
 
-/* ── ERROR / NOTICE ── */
+/* ── NOTICE / ERROR ── */
 .card-notice {
   padding: 14px 16px;
   font-size: 0.75rem;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--muted);
 }
-.card-notice.err { color: var(--red); background: rgba(224,92,92,0.06); }
-.card-notice a { color: var(--amber); text-decoration: none; }
+.card-notice.err { color: var(--red); }
+.card-notice a { color: var(--sky); text-decoration: none; }
 .card-notice a:hover { text-decoration: underline; }
 
 /* ── ADD CARD ── */
@@ -380,39 +504,36 @@ header {
   flex-shrink: 0;
   width: 300px;
   scroll-snap-align: start;
-  border: 1px dashed var(--border2);
+  border: 1px dashed rgba(255,255,255,0.12);
   border-radius: var(--radius);
-  background: transparent;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 24px 20px;
-  gap: 0;
+  align-items: flex-start;
+  padding: 22px 20px;
   transition: border-color 0.15s, background 0.15s;
-  cursor: default;
 }
 .add-card:hover {
-  border-color: var(--amber-dim);
-  background: rgba(232,168,56,0.03);
+  border-color: rgba(91,184,245,0.25);
+  background: rgba(91,184,245,0.04);
 }
 
 .add-card-title {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 20px;
-  width: 100%;
 }
 
 .add-field { display: flex; flex-direction: column; gap: 5px; width: 100%; margin-bottom: 12px; }
-
 .add-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.58rem;
+  font-size: 0.57rem;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -422,68 +543,65 @@ header {
 .add-input {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
   color: var(--text);
-  padding: 8px 10px;
+  padding: 9px 11px;
   outline: none;
   width: 100%;
-  transition: border-color 0.12s;
+  transition: border-color 0.12s, background 0.12s;
 }
-.add-input:focus { border-color: var(--amber); }
+.add-input:focus { border-color: var(--sky); background: rgba(255,255,255,0.08); }
 .add-input::placeholder { color: var(--dim); }
 input[type="date"].add-input::-webkit-calendar-picker-indicator {
-  filter: invert(0.4);
+  filter: invert(0.5) sepia(1) hue-rotate(180deg) saturate(1.5);
   cursor: pointer;
+  opacity: 0.7;
 }
 
 .add-btn {
   margin-top: 8px;
   width: 100%;
   padding: 10px;
-  background: var(--amber);
-  color: var(--bg);
+  background: var(--sky);
+  color: #020B18;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.12s, transform 0.1s;
 }
-.add-btn:hover { background: #f0b840; }
+.add-btn:hover { background: var(--sky-pale); }
 .add-btn:active { transform: scale(0.98); }
 
 .add-err {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--red);
-  margin-top: 6px;
+  margin-top: 4px;
   font-family: 'IBM Plex Mono', monospace;
-  min-height: 16px;
+  min-height: 14px;
 }
 
-/* ── EMPTY BOARD STATE ── */
+/* ── EMPTY STATE ── */
 .board-empty {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 60px 0 0 4px;
-  gap: 6px;
+  gap: 5px;
+  padding: 64px 0 0 2px;
   pointer-events: none;
   user-select: none;
 }
-
 .be-line {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--dim);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
-.be-line.hi { color: var(--border2); font-size: 0.65rem; }
 </style>
 </head>
 <body>
@@ -492,9 +610,9 @@ input[type="date"].add-input::-webkit-calendar-picker-indicator {
 <header>
   <div class="wordmark">TRIP<span>BOARD</span></div>
   <div class="header-right">
-    <div class="gnews-wrap">
-      <span class="gnews-label">GNEWS KEY</span>
-      <input class="gnews-input" type="password" id="gnews-key" placeholder="optional — gnews.io">
+    <div class="key-status" id="key-status" onclick="openModal()">
+      <div class="key-dot" id="key-dot"></div>
+      <span id="key-label">News API key</span>
     </div>
     <div class="unit-toggle">
       <button class="unit-btn active" id="btn-f" onclick="setUnit('F')">°F</button>
@@ -503,16 +621,38 @@ input[type="date"].add-input::-webkit-calendar-picker-indicator {
   </div>
 </header>
 
+<!-- ══ SETTINGS MODAL ══ -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">// News API Key</div>
+    <p class="modal-sub">
+      Headlines are powered by <a href="https://gnews.io/register" target="_blank">GNews</a>
+      — free tier gives 100 requests/day, no credit card required. Sign up takes about 60 seconds.
+      Your key is saved locally in this browser only.
+    </p>
+    <div class="modal-field">
+      <label class="modal-label">GNews API Key</label>
+      <input class="modal-input" type="text" id="modal-key-input"
+        placeholder="e.g. a1b2c3d4e5f6789…" autocomplete="off" spellcheck="false">
+    </div>
+    <p class="modal-hint" id="modal-hint"></p>
+    <div class="modal-actions">
+      <button class="modal-save" onclick="saveKey()">Save &amp; apply</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-clear" onclick="clearKey()" title="Remove saved key">Clear</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ BOARD ══ -->
 <div class="board" id="board">
 
-  <!-- empty state hint (hidden once a card is added) -->
   <div class="board-empty" id="board-empty">
-    <div class="be-line">// no destinations added yet</div>
-    <div class="be-line hi">// use the form to the right →</div>
+    <div class="be-line">// no destinations added</div>
+    <div class="be-line">// add a city using the form →</div>
   </div>
 
-  <!-- ADD card — always last -->
+  <!-- ADD card -->
   <div class="add-card" id="add-card">
     <div class="add-card-title">// add destination</div>
 
@@ -520,12 +660,10 @@ input[type="date"].add-input::-webkit-calendar-picker-indicator {
       <label class="add-label">City</label>
       <input class="add-input" type="text" id="add-city" placeholder="Nashville, Tokyo, Rome…">
     </div>
-
     <div class="add-field">
       <label class="add-label">Arrival</label>
       <input class="add-input" type="date" id="add-from">
     </div>
-
     <div class="add-field">
       <label class="add-label">Departure (optional)</label>
       <input class="add-input" type="date" id="add-to">
@@ -534,46 +672,110 @@ input[type="date"].add-input::-webkit-calendar-picker-indicator {
     <div class="add-err" id="add-err"></div>
     <button class="add-btn" onclick="addCard()">Add to board</button>
   </div>
-
-</div><!-- /board -->
+</div>
 
 <script>
 // ─────────────────────────────────────────────
 //  STATE
 // ─────────────────────────────────────────────
 let tempUnit = 'F';
-
-// cards[]: { id, city, from, to, resolvedName, weatherData }
+let gnewsKey = '';
 let cards = [];
 
 // ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
 (function init() {
-  const key = localStorage.getItem('gnews_key');
-  if (key) document.getElementById('gnews-key').value = key;
+  // Load saved key first — before restoring cards
+  gnewsKey = localStorage.getItem('gnews_key') || '';
+  updateKeyStatus();
 
-  // default arrival = today
-  const today = new Date();
-  document.getElementById('add-from').value = toDateStr(today);
+  // Default arrival = today
+  document.getElementById('add-from').value = toDateStr(new Date());
 
-  // restore saved cards
+  // Restore saved cards
   try {
     const saved = JSON.parse(localStorage.getItem('tripboard_cards') || '[]');
-    saved.forEach(c => addCardFromData(c));
+    saved.forEach(c => addCardFromData(c, false));
   } catch(e) {}
 
-  // Enter key on city field
+  // Enter on city field
   document.getElementById('add-city').addEventListener('keydown', e => {
     if (e.key === 'Enter') addCard();
   });
 
-  // Save GNews key on blur
-  document.getElementById('gnews-key').addEventListener('blur', () => {
-    const v = document.getElementById('gnews-key').value.trim();
-    if (v) localStorage.setItem('gnews_key', v);
+  // ESC closes modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
   });
 })();
+
+// ─────────────────────────────────────────────
+//  API KEY MODAL
+// ─────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modal-key-input').value = gnewsKey;
+  document.getElementById('modal-hint').textContent = '';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('modal-key-input').focus(), 60);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function saveKey() {
+  const val = document.getElementById('modal-key-input').value.trim();
+  const hint = document.getElementById('modal-hint');
+
+  if (!val) {
+    hint.style.color = 'var(--red)';
+    hint.textContent = 'Enter a key, or use Clear to remove the saved one.';
+    return;
+  }
+  if (val.length < 16) {
+    hint.style.color = 'var(--red)';
+    hint.textContent = 'That looks too short — double-check the key.';
+    return;
+  }
+
+  gnewsKey = val;
+  localStorage.setItem('gnews_key', val);
+  updateKeyStatus();
+  closeModal();
+
+  // Reload news on all existing cards with the new key
+  cards.forEach(c => loadNews(c.id, c.resolvedName || c.city));
+}
+
+function clearKey() {
+  gnewsKey = '';
+  localStorage.removeItem('gnews_key');
+  document.getElementById('modal-key-input').value = '';
+  updateKeyStatus();
+  // Update all cards to show "no key" notice
+  cards.forEach(c => {
+    const el = document.getElementById(`cn-${c.id}`);
+    if (el) el.innerHTML = noKeyNotice();
+  });
+  closeModal();
+}
+
+function updateKeyStatus() {
+  const dot   = document.getElementById('key-dot');
+  const label = document.getElementById('key-label');
+  if (gnewsKey) {
+    dot.classList.add('active');
+    label.textContent = 'News key active';
+  } else {
+    dot.classList.remove('active');
+    label.textContent = 'Add news API key';
+  }
+}
 
 // ─────────────────────────────────────────────
 //  HELPERS
@@ -586,15 +788,13 @@ function fmtDate(str) {
 }
 
 function cityCode(name) {
-  // 3-letter code from first word
-  return name.replace(/,.*/, '').trim().substring(0, 3).toUpperCase();
+  return (name || '').replace(/,.*/, '').trim().substring(0, 3).toUpperCase();
 }
 
 function timeAgo(iso) {
   if (!iso) return '';
-  const ms = Date.now() - new Date(iso);
-  const m = Math.floor(ms / 60000);
-  if (m < 2)  return 'just now';
+  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (m < 2) return 'just now';
   if (m < 60) return `${m}m ago`;
   if (m < 1440) return `${Math.floor(m/60)}h ago`;
   return `${Math.floor(m/1440)}d ago`;
@@ -608,44 +808,65 @@ function esc(s) {
 function fmtTemp(f, unit) {
   const n = parseFloat(f);
   if (isNaN(n)) return '--';
-  if (unit === 'F') return Math.round(n) + '°';
-  return Math.round((n - 32) * 5/9) + '°';
+  return unit === 'F' ? Math.round(n) + '°' : Math.round((n-32)*5/9) + '°';
 }
 
 function descToIcon(desc) {
   const s = (desc||'').toLowerCase();
-  if (s.includes('thunder') || s.includes('storm'))    return '⛈️';
-  if (s.includes('blizzard'))                           return '🌨️';
-  if (s.includes('snow') || s.includes('sleet'))       return '❄️';
-  if (s.includes('freezing'))                           return '🌨️';
+  if (s.includes('thunder') || s.includes('storm'))         return '⛈️';
+  if (s.includes('blizzard'))                                return '🌨️';
+  if (s.includes('snow') || s.includes('sleet'))            return '❄️';
+  if (s.includes('freezing'))                                return '🌨️';
   if (s.includes('heavy rain') || s.includes('torrential')) return '🌧️';
   if (s.includes('drizzle') || s.includes('light rain') || s.includes('patchy rain')) return '🌦️';
-  if (s.includes('rain') || s.includes('shower'))      return '🌧️';
+  if (s.includes('rain') || s.includes('shower'))           return '🌧️';
   if (s.includes('fog') || s.includes('mist') || s.includes('haze')) return '🌫️';
-  if (s.includes('overcast'))                           return '☁️';
-  if (s.includes('cloudy'))                             return '🌤️';
-  if (s.includes('partly') || s.includes('partial'))   return '⛅';
-  if (s.includes('sunny') || s.includes('clear'))      return '☀️';
+  if (s.includes('overcast'))                                return '☁️';
+  if (s.includes('cloudy'))                                  return '🌤️';
+  if (s.includes('partly') || s.includes('partial'))        return '⛅';
+  if (s.includes('sunny') || s.includes('clear'))           return '☀️';
   return '🌡️';
 }
 
-function savecards() {
+function saveCards() {
   const slim = cards.map(c => ({ id: c.id, city: c.city, from: c.from, to: c.to }));
   localStorage.setItem('tripboard_cards', JSON.stringify(slim));
 }
 
 function updateEmptyState() {
-  document.getElementById('board-empty').style.display =
-    cards.length === 0 ? 'flex' : 'none';
+  document.getElementById('board-empty').style.display = cards.length ? 'none' : 'flex';
+}
+
+function noKeyNotice() {
+  return `<div class="card-notice">
+    Headlines need a <span style="color:var(--sky);cursor:pointer" onclick="openModal()">GNews API key</span>
+    — click the pill in the header to add one. Free, takes ~60 sec.
+  </div>`;
+}
+
+function skeletonWeather() {
+  return `<div style="padding:14px 0 4px">
+    <div class="sk sk-line" style="width:42%;height:30px;margin-bottom:10px"></div>
+    <div class="sk sk-line" style="width:60%"></div>
+    <div class="sk sk-line" style="width:45%"></div>
+  </div>`;
+}
+function skeletonNews() {
+  return `<div style="padding:12px 16px">
+    <div class="sk sk-line" style="width:85%"></div>
+    <div class="sk sk-line" style="width:55%"></div>
+    <div class="sk sk-line" style="width:78%;margin-top:10px"></div>
+    <div class="sk sk-line" style="width:62%"></div>
+  </div>`;
 }
 
 // ─────────────────────────────────────────────
-//  ADD CARD (from UI)
+//  ADD CARD
 // ─────────────────────────────────────────────
 function addCard() {
-  const city = document.getElementById('add-city').value.trim();
-  const from = document.getElementById('add-from').value;
-  const to   = document.getElementById('add-to').value;
+  const city  = document.getElementById('add-city').value.trim();
+  const from  = document.getElementById('add-from').value;
+  const to    = document.getElementById('add-to').value;
   const errEl = document.getElementById('add-err');
   errEl.textContent = '';
 
@@ -654,33 +875,29 @@ function addCard() {
   if (to && to < from) { errEl.textContent = '// departure must be after arrival'; return; }
 
   const data = { id: Date.now(), city, from, to };
-  addCardFromData(data);
+  addCardFromData(data, true);
 
-  // reset form
   document.getElementById('add-city').value = '';
   document.getElementById('add-to').value = '';
   document.getElementById('add-city').focus();
 }
 
-function addCardFromData(data) {
+function addCardFromData(data, scrollTo = false) {
   const entry = { ...data, resolvedName: data.city, weatherData: null };
   cards.push(entry);
-  savecards();
+  saveCards();
   updateEmptyState();
 
-  // Build DOM
-  const card = buildCardDOM(entry);
-  const board = document.getElementById('board');
-  const addCard = document.getElementById('add-card');
-  board.insertBefore(card, addCard);
+  const cardEl = buildCardDOM(entry);
+  const board  = document.getElementById('board');
+  board.insertBefore(cardEl, document.getElementById('add-card'));
 
-  // scroll to new card
-  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }), 50);
+  if (scrollTo) {
+    setTimeout(() => cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }), 50);
+  }
 
-  // Load data
-  const key = document.getElementById('gnews-key').value.trim();
   loadWeather(entry.id, entry.city);
-  loadNews(entry.id, entry.city, key);
+  loadNews(entry.id, entry.city);
 }
 
 // ─────────────────────────────────────────────
@@ -691,38 +908,21 @@ function buildCardDOM(entry) {
   el.className = 'city-card';
   el.dataset.id = entry.id;
 
-  const dateLabel = entry.to && entry.to !== entry.from
+  const dateLabel = (entry.to && entry.to !== entry.from)
     ? `${fmtDate(entry.from)} → ${fmtDate(entry.to)}`
     : fmtDate(entry.from);
 
   el.innerHTML = `
     <div class="card-band">
-      <div class="card-code">${cityCode(entry.city)}</div>
-      <div class="card-city">${esc(entry.city)}</div>
+      <div class="card-code" id="cc-${entry.id}">${cityCode(entry.city)}</div>
+      <div class="card-city" id="ccity-${entry.id}">${esc(entry.city)}</div>
       <div class="card-dates">${esc(dateLabel)}</div>
       <button class="card-remove" onclick="removeCard(${entry.id})" title="Remove">✕</button>
     </div>
     <div class="card-weather" id="cw-${entry.id}">${skeletonWeather()}</div>
-    <div class="card-news" id="cn-${entry.id}">${skeletonNews()}</div>
+    <div class="card-news"    id="cn-${entry.id}">${skeletonNews()}</div>
   `;
   return el;
-}
-
-function skeletonWeather() {
-  return `<div style="padding:14px 0 4px">
-    <div class="sk sk-line" style="width:40%;height:32px;margin-bottom:10px"></div>
-    <div class="sk sk-line" style="width:65%"></div>
-    <div class="sk sk-line" style="width:50%"></div>
-  </div>`;
-}
-
-function skeletonNews() {
-  return `<div style="padding:12px 16px">
-    <div class="sk sk-line" style="width:80%"></div>
-    <div class="sk sk-line" style="width:55%"></div>
-    <div class="sk sk-line" style="width:75%;margin-top:10px"></div>
-    <div class="sk sk-line" style="width:60%"></div>
-  </div>`;
 }
 
 // ─────────────────────────────────────────────
@@ -730,15 +930,15 @@ function skeletonNews() {
 // ─────────────────────────────────────────────
 function removeCard(id) {
   cards = cards.filter(c => c.id !== id);
-  savecards();
+  saveCards();
+  updateEmptyState();
   const el = document.querySelector(`.city-card[data-id="${id}"]`);
   if (el) {
     el.style.transition = 'opacity 0.2s, transform 0.2s';
     el.style.opacity = '0';
-    el.style.transform = 'translateX(-16px)';
+    el.style.transform = 'scale(0.95)';
     setTimeout(() => el.remove(), 220);
   }
-  updateEmptyState();
 }
 
 // ─────────────────────────────────────────────
@@ -752,47 +952,38 @@ async function loadWeather(id, city) {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
 
-    // Update resolved name + card code
+    // Resolve location name
     const area = d.nearest_area?.[0];
     if (area) {
-      const resolvedCity    = area.areaName?.[0]?.value || city;
-      const resolvedCountry = area.country?.[0]?.value || '';
-      const resolvedRegion  = area.region?.[0]?.value  || '';
-      const full = [resolvedCity, resolvedRegion, resolvedCountry].filter(Boolean).join(', ');
-      const card = document.querySelector(`.city-card[data-id="${id}"]`);
-      if (card) {
-        card.querySelector('.card-city').textContent = full;
-        card.querySelector('.card-code').textContent = cityCode(resolvedCity);
-      }
+      const rc = area.areaName?.[0]?.value || city;
+      const rr = area.region?.[0]?.value   || '';
+      const rn = area.country?.[0]?.value  || '';
+      const full = [rc, rr, rn].filter(Boolean).join(', ');
+      const cityEl = document.getElementById(`ccity-${id}`);
+      const codeEl = document.getElementById(`cc-${id}`);
+      if (cityEl) cityEl.textContent = full;
+      if (codeEl) codeEl.textContent = cityCode(rc);
       const entry = cards.find(c => c.id === id);
       if (entry) { entry.resolvedName = full; entry.weatherData = d; }
     }
 
     el.innerHTML = renderWeather(d, tempUnit);
-    // flip animation on temp
     const tempEl = el.querySelector('.w-temp');
     if (tempEl) { tempEl.classList.remove('flip'); void tempEl.offsetWidth; tempEl.classList.add('flip'); }
-
   } catch(e) {
     el.innerHTML = `<div class="card-notice err">⚠ ${esc(e.message)}<br>
-      <span style="color:var(--muted);font-size:0.68rem">Check the city name and try again.</span></div>`;
+      <span style="font-size:0.68rem;color:var(--muted)">Check the city name.</span></div>`;
   }
 }
 
 function renderWeather(d, unit) {
   const cur   = d.current_condition?.[0];
   const daily = d.weather || [];
-  if (!cur) return `<div class="card-notice err">No weather data.</div>`;
+  if (!cur) return `<div class="card-notice err">No data.</div>`;
 
-  const desc = cur.weatherDesc?.[0]?.value || '';
-  const icon = descToIcon(desc);
-  const wind = cur.windspeedMiles;
-  const hum  = cur.humidity;
-  const feels = cur.FeelsLikeF;
-  const vis  = cur.visibility;
-
+  const desc  = cur.weatherDesc?.[0]?.value || '';
   const fcHTML = daily.slice(0,3).map(day => {
-    const dt = new Date(day.date + 'T12:00:00');
+    const dt    = new Date(day.date + 'T12:00:00');
     const fdesc = day.hourly?.[4]?.weatherDesc?.[0]?.value || '';
     return `<div class="fc">
       <div class="fc-day">${dt.toLocaleDateString('en-US',{weekday:'short'})}</div>
@@ -804,44 +995,39 @@ function renderWeather(d, unit) {
 
   return `
     <div class="w-current">
-      <div class="w-icon">${icon}</div>
+      <div class="w-icon">${descToIcon(desc)}</div>
       <div class="w-right">
         <div class="w-temp flip">${fmtTemp(cur.temp_F, unit)}</div>
         <div class="w-desc">${esc(desc)}</div>
       </div>
     </div>
     <div class="w-meta">
-      <div class="w-meta-row">💧 <span class="w-meta-val">${hum}%</span></div>
-      <div class="w-meta-row">💨 <span class="w-meta-val">${wind} mph</span></div>
-      <div class="w-meta-row">🌡 <span class="w-meta-val">feels ${fmtTemp(feels, unit)}</span></div>
-      <div class="w-meta-row">👁 <span class="w-meta-val">${vis} km</span></div>
+      <div class="w-meta-row">💧 <span class="w-meta-val">${cur.humidity}%</span></div>
+      <div class="w-meta-row">💨 <span class="w-meta-val">${cur.windspeedMiles} mph</span></div>
+      <div class="w-meta-row">🌡 <span class="w-meta-val">feels ${fmtTemp(cur.FeelsLikeF, unit)}</span></div>
+      <div class="w-meta-row">👁 <span class="w-meta-val">${cur.visibility} km</span></div>
     </div>
-    <div class="forecast">${fcHTML}</div>
-  `;
+    <div class="forecast">${fcHTML}</div>`;
 }
 
 // ─────────────────────────────────────────────
-//  NEWS — GNews
+//  NEWS — GNews  (reads global gnewsKey)
 // ─────────────────────────────────────────────
-async function loadNews(id, city, key) {
+async function loadNews(id, city) {
   const el = document.getElementById(`cn-${id}`);
   if (!el) return;
 
-  if (!key) {
-    el.innerHTML = `<div class="card-notice">
-      // headlines require a free
-      <a href="https://gnews.io/register" target="_blank">GNews key</a>
-      — paste it in the header above.
-    </div>`;
-    return;
-  }
+  if (!gnewsKey) { el.innerHTML = noKeyNotice(); return; }
+
+  el.innerHTML = skeletonNews();
 
   try {
-    const q = encodeURIComponent(`"${city}"`);
-    const url = `https://gnews.io/api/v4/search?q=${q}&lang=en&max=6&apikey=${encodeURIComponent(key)}`;
-    const r = await fetch(url);
-    const d = await r.json();
-    if (d.errors) throw new Error(d.errors.join(', '));
+    const q   = encodeURIComponent(city);
+    const url = `https://gnews.io/api/v4/search?q=${q}&lang=en&max=6&apikey=${encodeURIComponent(gnewsKey)}`;
+    const r   = await fetch(url);
+    const d   = await r.json();
+
+    if (d.errors) throw new Error(Array.isArray(d.errors) ? d.errors.join(', ') : JSON.stringify(d.errors));
 
     const articles = d.articles || [];
     if (!articles.length) {
@@ -860,18 +1046,17 @@ async function loadNews(id, city, key) {
             <div class="news-title">${esc(a.title)}</div>
             <div class="news-byline">
               <span class="news-src">${esc(a.source?.name||'')}</span>
-              <span class="news-age">${timeAgo(a.publishedAt)}</span>
+              <span>${timeAgo(a.publishedAt)}</span>
             </div>
-          </a>
-        `).join('')}
+          </a>`).join('')}
       </div>`;
   } catch(e) {
-    el.innerHTML = `<div class="card-notice err">⚠ News: ${esc(e.message)}</div>`;
+    el.innerHTML = `<div class="card-notice err">⚠ ${esc(e.message)}</div>`;
   }
 }
 
 // ─────────────────────────────────────────────
-//  UNIT TOGGLE — re-render all weather
+//  UNIT TOGGLE
 // ─────────────────────────────────────────────
 function setUnit(unit) {
   tempUnit = unit;
