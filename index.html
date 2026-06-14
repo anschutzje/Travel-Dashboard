@@ -3,560 +3,575 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Travel Dashboard</title>
+<title>Tripboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --parchment:  #F7F3EE;
-  --parchment2: #EDE8E1;
-  --ink:        #1A1A2E;
-  --ink-light:  #4A4A6A;
-  --stamp:      #C97B6A;
-  --slate:      #4A6FA5;
-  --slate-light:#6B8FBF;
-  --rule:       rgba(26,26,46,0.10);
-  --card:       #FFFFFF;
-  --radius:     10px;
+  --bg:       #060D1F;
+  --surface:  #0D1A35;
+  --surface2: #112040;
+  --border:   #1A3060;
+  --border2:  #1F3D7A;
+  --amber:    #4D9FE8;
+  --amber-dim:#1A3F6B;
+  --text:     #7EC8F5;
+  --muted:    #3A6B9A;
+  --dim:      #1E3F66;
+  --red:      #E05C5C;
+  --green:    #4CAF7D;
+  --radius:   8px;
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--parchment);
-  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* ── HEADER ─────────────────────────── */
+/* ── HEADER ── */
 header {
-  background: var(--ink);
-  padding: 18px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  padding: 0 28px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 200;
 }
 
-.logo {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 1.25rem;
-  color: var(--parchment);
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.logo span {
-  font-style: normal;
-  font-weight: 700;
-  color: var(--stamp);
-}
-
-/* ── SEARCH BAR ──────────────────────── */
-.search-bar {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex: 1;
-  max-width: 700px;
-  flex-wrap: wrap;
-}
-
-.search-field {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 1;
-  min-width: 120px;
-}
-
-.search-field label {
-  font-size: 0.6rem;
+.wordmark {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.92rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(247,243,238,0.45);
+  color: var(--amber);
 }
 
-.search-field input {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 6px;
-  color: var(--parchment);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.88rem;
-  padding: 8px 11px;
-  outline: none;
-  transition: border-color 0.15s, background 0.15s;
-  width: 100%;
+.wordmark span {
+  color: var(--muted);
+  font-weight: 300;
 }
 
-.search-field input::placeholder { color: rgba(247,243,238,0.35); }
-.search-field input:focus {
-  border-color: var(--stamp);
-  background: rgba(255,255,255,0.12);
-}
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
-  cursor: pointer;
-}
-
-.search-btn {
-  margin-top: 14px;
-  padding: 9px 22px;
-  background: var(--stamp);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s, transform 0.1s;
-  flex-shrink: 0;
-}
-.search-btn:hover { background: #b86a59; }
-.search-btn:active { transform: scale(0.97); }
-
-/* ── API KEY NOTICE ──────────────────── */
-.api-bar {
-  background: var(--parchment2);
-  border-bottom: 1px solid var(--rule);
-  padding: 10px 32px;
+.header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.78rem;
-  color: var(--ink-light);
-  flex-wrap: wrap;
+  gap: 20px;
 }
 
-.api-bar strong { color: var(--ink); }
-
-.api-bar input {
-  flex: 1;
-  min-width: 200px;
-  max-width: 340px;
-  background: #fff;
-  border: 1px solid var(--rule);
-  border-radius: 5px;
-  padding: 5px 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.78rem;
-  color: var(--ink);
-  outline: none;
-}
-.api-bar input:focus { border-color: var(--slate); }
-
-.api-bar a { color: var(--slate); text-decoration: none; }
-.api-bar a:hover { text-decoration: underline; }
-
-/* ── MAIN LAYOUT ─────────────────────── */
-main {
-  padding: 36px 32px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* ── EMPTY STATE ─────────────────────── */
-#empty-state {
-  text-align: center;
-  padding: 80px 24px;
-}
-
-.empty-icon {
-  font-size: 3.5rem;
-  margin-bottom: 16px;
-  opacity: 0.35;
-}
-
-.empty-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 8px;
-}
-
-.empty-sub {
-  color: var(--ink-light);
-  font-size: 0.88rem;
-  line-height: 1.6;
-}
-
-/* ── DESTINATION HEADER ──────────────── */
-#dest-header {
-  display: none;
-  margin-bottom: 28px;
-  position: relative;
-}
-
-.dest-watermark {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: clamp(3rem, 8vw, 6rem);
-  color: var(--ink);
-  opacity: 0.04;
-  line-height: 1;
-  position: absolute;
-  top: -12px;
-  left: -8px;
-  pointer-events: none;
-  white-space: nowrap;
+.unit-toggle {
+  display: flex;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
   overflow: hidden;
-  max-width: 100%;
-  user-select: none;
 }
 
-.dest-info {
-  position: relative;
-  padding-top: 8px;
-}
-
-.dest-city {
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.dest-dates {
-  font-size: 0.82rem;
-  color: var(--ink-light);
-  margin-top: 4px;
+.unit-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
   font-weight: 500;
+  padding: 5px 10px;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  cursor: pointer;
+  transition: all 0.12s;
+  letter-spacing: 0.05em;
 }
+.unit-btn.active { background: var(--amber); color: var(--bg); }
 
-.dest-rule {
-  height: 2px;
-  background: linear-gradient(90deg, var(--stamp) 0%, transparent 60%);
-  margin-top: 12px;
-}
-
-/* ── TWO-COLUMN GRID ─────────────────── */
-.dash-grid {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-@media (max-width: 780px) {
-  .dash-grid { grid-template-columns: 1fr; }
-  header { padding: 14px 16px; flex-wrap: wrap; }
-  .search-bar { max-width: 100%; }
-  main { padding: 24px 16px; }
-  .api-bar { padding: 10px 16px; }
-}
-
-/* ── CARDS ───────────────────────────── */
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  border: 1px solid var(--rule);
-  overflow: hidden;
-}
-
-.card-header {
-  padding: 14px 20px 12px;
-  border-bottom: 1px solid var(--rule);
+.gnews-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.card-eyebrow {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-light);
+.gnews-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
-.card-icon { font-size: 0.9rem; }
+.gnews-input {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 5px 10px;
+  width: 200px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.gnews-input:focus { border-color: var(--amber); }
+.gnews-input::placeholder { color: var(--dim); }
 
-/* ── WEATHER CARD ────────────────────── */
-#weather-card .card-body { padding: 20px; }
-
-.weather-now {
+/* ── BOARD (horizontal scroll) ── */
+.board {
   display: flex;
-  align-items: center;
   gap: 16px;
-  margin-bottom: 18px;
+  padding: 28px 28px 40px;
+  overflow-x: auto;
+  align-items: flex-start;
+  min-height: calc(100vh - 52px);
+  scroll-snap-type: x proximity;
 }
 
-.w-icon { font-size: 3.2rem; line-height: 1; }
+.board::-webkit-scrollbar { height: 5px; }
+.board::-webkit-scrollbar-track { background: var(--surface); }
+.board::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.board::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── CITY CARD ── */
+.city-card {
+  flex-shrink: 0;
+  width: 300px;
+  scroll-snap-align: start;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+  animation: slideIn 0.25s ease both;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* card top band */
+.card-band {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* large city code watermark */
+.card-code {
+  position: absolute;
+  right: -4px;
+  top: -8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 4rem;
+  font-weight: 600;
+  color: var(--border2);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+.card-city {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  position: relative;
+}
+
+.card-dates {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--amber);
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+  position: relative;
+}
+
+.card-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 3px;
+  transition: color 0.12s, background 0.12s;
+  z-index: 2;
+}
+.card-remove:hover { color: var(--red); background: rgba(224,92,92,0.1); }
+
+/* ── WEATHER SECTION ── */
+.card-weather {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.w-current {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.w-icon { font-size: 2.4rem; line-height: 1; flex-shrink: 0; }
+
+.w-right { flex: 1; }
 
 .w-temp {
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 2.4rem;
+  font-weight: 600;
   line-height: 1;
-  color: var(--ink);
+  color: var(--amber);
+  /* flip animation on load */
+}
+
+.w-temp.flip {
+  animation: numFlip 0.4s steps(8) both;
+}
+@keyframes numFlip {
+  from { opacity: 0.2; }
+  to   { opacity: 1; }
 }
 
 .w-desc {
-  font-size: 0.85rem;
-  color: var(--ink-light);
-  margin-top: 3px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 2px;
+  font-weight: 400;
 }
 
 .w-meta {
-  display: flex;
-  gap: 14px;
-  font-size: 0.78rem;
-  color: var(--ink-light);
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-bottom: 14px;
 }
 
-.w-meta-item { display: flex; align-items: center; gap: 5px; }
+.w-meta-row { display: flex; align-items: center; gap: 5px; }
+.w-meta-val { color: var(--text); }
 
-.forecast-strip {
+/* forecast */
+.forecast {
   display: flex;
-  gap: 6px;
-  border-top: 1px solid var(--rule);
-  padding-top: 16px;
+  gap: 4px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
 }
 
-.fc-slot {
+.fc {
   flex: 1;
   text-align: center;
-  padding: 10px 4px;
-  border-radius: 7px;
-  background: var(--parchment);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 3px;
 }
 
-.fc-day  { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 5px; }
-.fc-ico  { font-size: 1.3rem; margin-bottom: 4px; }
-.fc-hi   { font-size: 0.82rem; font-weight: 600; color: var(--stamp); }
-.fc-lo   { font-size: 0.72rem; color: var(--ink-light); }
+.fc-day {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.fc-ico  { font-size: 1.1rem; margin-bottom: 3px; }
+.fc-hi   { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; font-weight: 600; color: var(--amber); }
+.fc-lo   { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--muted); }
 
-.temp-toggle {
+/* ── NEWS SECTION ── */
+.card-news { padding: 0; }
+
+.news-hdr {
   display: flex;
-  gap: 0;
-  margin-left: auto;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--border);
 }
-.t-btn {
-  background: transparent;
-  border: 1px solid var(--rule);
-  color: var(--ink-light);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 9px;
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.t-btn:first-child { border-radius: 4px 0 0 4px; }
-.t-btn:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
-.t-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
 
-/* ── NEWS CARD ───────────────────────── */
-#news-card .card-body { padding: 0; }
+.news-hdr-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.news-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--dim);
+}
+
+.news-list { padding: 4px 0; }
 
 .news-item {
-  display: flex;
-  gap: 14px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--rule);
-  cursor: pointer;
-  transition: background 0.12s;
+  display: block;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
   text-decoration: none;
   color: inherit;
+  transition: background 0.1s;
+  cursor: pointer;
 }
 .news-item:last-child { border-bottom: none; }
-.news-item:hover { background: var(--parchment); }
-
-.news-num {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--stamp);
-  opacity: 0.35;
-  line-height: 1.2;
-  flex-shrink: 0;
-  width: 22px;
-  text-align: right;
-}
-
-.news-content { flex: 1; min-width: 0; }
+.news-item:hover { background: var(--surface2); }
 
 .news-title {
-  font-size: 0.88rem;
-  font-weight: 500;
+  font-size: 0.78rem;
   line-height: 1.45;
-  color: var(--ink);
-  margin-bottom: 5px;
+  color: var(--text);
+  margin-bottom: 4px;
+  font-weight: 400;
 }
+.news-item:hover .news-title { color: var(--amber); }
 
-.news-meta {
-  font-size: 0.7rem;
-  color: var(--ink-light);
+.news-byline {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.news-source { font-weight: 600; }
-.news-age    { opacity: 0.7; }
+.news-src { color: var(--dim); }
+.news-age { color: var(--muted); }
 
-/* ── SKELETON / LOADING ──────────────── */
+/* ── SKELETON ── */
 .sk {
-  background: linear-gradient(90deg, var(--parchment2) 25%, #e8e3db 50%, var(--parchment2) 75%);
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.3s infinite;
-  border-radius: 4px;
+  animation: shimmer 1.4s infinite;
+  border-radius: 3px;
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
-.sk-line { height: 13px; margin-bottom: 9px; }
+.sk-line { height: 10px; margin-bottom: 8px; }
 
-/* ── ERROR ───────────────────────────── */
-.err-msg {
-  padding: 20px;
-  font-size: 0.82rem;
-  color: #b04040;
+/* ── ERROR / NOTICE ── */
+.card-notice {
+  padding: 14px 16px;
+  font-size: 0.75rem;
   line-height: 1.6;
-  background: #fff5f5;
-  border-radius: 6px;
-  margin: 12px;
+  color: var(--muted);
 }
+.card-notice.err { color: var(--red); background: rgba(224,92,92,0.06); }
+.card-notice a { color: var(--amber); text-decoration: none; }
+.card-notice a:hover { text-decoration: underline; }
 
-/* ── NO KEY NOTICE ───────────────────── */
-.no-key {
+/* ── ADD CARD ── */
+.add-card {
+  flex-shrink: 0;
+  width: 300px;
+  scroll-snap-align: start;
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius);
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   padding: 24px 20px;
-  font-size: 0.82rem;
-  color: var(--ink-light);
-  line-height: 1.7;
-  text-align: center;
+  gap: 0;
+  transition: border-color 0.15s, background 0.15s;
+  cursor: default;
 }
-.no-key a { color: var(--slate); }
+.add-card:hover {
+  border-color: var(--amber-dim);
+  background: rgba(232,168,56,0.03);
+}
 
-/* ── FADE IN ─────────────────────────── */
-.fade-in {
-  animation: fadeIn 0.35s ease both;
+.add-card-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+  width: 100%;
 }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.add-field { display: flex; flex-direction: column; gap: 5px; width: 100%; margin-bottom: 12px; }
+
+.add-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.add-input {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 8px 10px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.12s;
+}
+.add-input:focus { border-color: var(--amber); }
+.add-input::placeholder { color: var(--dim); }
+input[type="date"].add-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.4);
+  cursor: pointer;
+}
+
+.add-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 10px;
+  background: var(--amber);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.1s;
+}
+.add-btn:hover { background: #f0b840; }
+.add-btn:active { transform: scale(0.98); }
+
+.add-err {
+  font-size: 0.7rem;
+  color: var(--red);
+  margin-top: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  min-height: 16px;
+}
+
+/* ── EMPTY BOARD STATE ── */
+.board-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 0 0 4px;
+  gap: 6px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.be-line {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+.be-line.hi { color: var(--border2); font-size: 0.65rem; }
 </style>
 </head>
 <body>
 
-<!-- HEADER + SEARCH -->
+<!-- ══ HEADER ══ -->
 <header>
-  <div class="logo">trip<span>desk</span></div>
-
-  <div class="search-bar">
-    <div class="search-field" style="flex:2; min-width:160px;">
-      <label>Destination</label>
-      <input type="text" id="city-input" placeholder="e.g. Tokyo, Nashville, Rome…" autocomplete="off">
+  <div class="wordmark">TRIP<span>BOARD</span></div>
+  <div class="header-right">
+    <div class="gnews-wrap">
+      <span class="gnews-label">GNEWS KEY</span>
+      <input class="gnews-input" type="password" id="gnews-key" placeholder="optional — gnews.io">
     </div>
-    <div class="search-field">
-      <label>Arrival</label>
-      <input type="date" id="date-from">
+    <div class="unit-toggle">
+      <button class="unit-btn active" id="btn-f" onclick="setUnit('F')">°F</button>
+      <button class="unit-btn" id="btn-c" onclick="setUnit('C')">°C</button>
     </div>
-    <div class="search-field">
-      <label>Departure (optional)</label>
-      <input type="date" id="date-to">
-    </div>
-    <button class="search-btn" onclick="runSearch()">Look up →</button>
   </div>
 </header>
 
-<!-- API KEY BAR -->
-<div class="api-bar">
-  <span>📰 <strong>News headlines</strong> — free key from
-    <a href="https://gnews.io/register" target="_blank">gnews.io</a>
-    (100 req/day, no credit card):</span>
-  <input type="password" id="gnews-key" placeholder="Paste GNews API key…">
-  <span style="opacity:0.6">Leave blank to skip news.</span>
-</div>
+<!-- ══ BOARD ══ -->
+<div class="board" id="board">
 
-<!-- MAIN -->
-<main>
-  <!-- Empty state -->
-  <div id="empty-state">
-    <div class="empty-icon">🌍</div>
-    <div class="empty-title">Where are you headed?</div>
-    <div class="empty-sub">Enter a city and travel dates above to see<br>weather forecasts and local news headlines.</div>
+  <!-- empty state hint (hidden once a card is added) -->
+  <div class="board-empty" id="board-empty">
+    <div class="be-line">// no destinations added yet</div>
+    <div class="be-line hi">// use the form to the right →</div>
   </div>
 
-  <!-- Destination header (hidden until search) -->
-  <div id="dest-header">
-    <div class="dest-watermark" id="dest-watermark"></div>
-    <div class="dest-info">
-      <div class="dest-city" id="dest-city"></div>
-      <div class="dest-dates" id="dest-dates"></div>
+  <!-- ADD card — always last -->
+  <div class="add-card" id="add-card">
+    <div class="add-card-title">// add destination</div>
+
+    <div class="add-field">
+      <label class="add-label">City</label>
+      <input class="add-input" type="text" id="add-city" placeholder="Nashville, Tokyo, Rome…">
     </div>
-    <div class="dest-rule"></div>
+
+    <div class="add-field">
+      <label class="add-label">Arrival</label>
+      <input class="add-input" type="date" id="add-from">
+    </div>
+
+    <div class="add-field">
+      <label class="add-label">Departure (optional)</label>
+      <input class="add-input" type="date" id="add-to">
+    </div>
+
+    <div class="add-err" id="add-err"></div>
+    <button class="add-btn" onclick="addCard()">Add to board</button>
   </div>
 
-  <!-- Dashboard grid -->
-  <div class="dash-grid" id="dash-grid" style="display:none">
-
-    <!-- Weather -->
-    <div class="card" id="weather-card">
-      <div class="card-header">
-        <span class="card-icon">🌡</span>
-        <span class="card-eyebrow">Weather</span>
-        <div class="temp-toggle" style="margin-left:auto">
-          <button class="t-btn active" id="btn-f" onclick="setUnit('F')">°F</button>
-          <button class="t-btn" id="btn-c" onclick="setUnit('C')">°C</button>
-        </div>
-      </div>
-      <div class="card-body" id="weather-body">
-        <div style="padding:20px">
-          <div class="sk sk-line" style="width:55%"></div>
-          <div class="sk sk-line" style="width:35%"></div>
-          <div class="sk sk-line" style="width:70%; margin-top:16px"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- News -->
-    <div class="card" id="news-card">
-      <div class="card-header">
-        <span class="card-icon">📰</span>
-        <span class="card-eyebrow">Headlines</span>
-        <span id="news-location-tag" style="font-size:0.7rem;color:var(--ink-light);margin-left:auto"></span>
-      </div>
-      <div class="card-body" id="news-body">
-        <div style="padding:20px">
-          <div class="sk sk-line" style="width:80%"></div>
-          <div class="sk sk-line" style="width:55%"></div>
-          <div class="sk sk-line" style="width:75%; margin-top:16px"></div>
-          <div class="sk sk-line" style="width:60%"></div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /dash-grid -->
-</main>
+</div><!-- /board -->
 
 <script>
 // ─────────────────────────────────────────────
 //  STATE
 // ─────────────────────────────────────────────
 let tempUnit = 'F';
-let lastWeatherData = null;
+
+// cards[]: { id, city, from, to, resolvedName, weatherData }
+let cards = [];
 
 // ─────────────────────────────────────────────
-//  INIT — restore saved key
+//  INIT
 // ─────────────────────────────────────────────
-(function() {
-  const saved = localStorage.getItem('gnews_key');
-  if (saved) document.getElementById('gnews-key').value = saved;
-  // Default dates
+(function init() {
+  const key = localStorage.getItem('gnews_key');
+  if (key) document.getElementById('gnews-key').value = key;
+
+  // default arrival = today
   const today = new Date();
-  const plus7 = new Date(today); plus7.setDate(today.getDate() + 7);
-  document.getElementById('date-from').value = toDateStr(today);
-  document.getElementById('date-to').value   = toDateStr(plus7);
-  // Enter key triggers search
-  document.getElementById('city-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') runSearch();
+  document.getElementById('add-from').value = toDateStr(today);
+
+  // restore saved cards
+  try {
+    const saved = JSON.parse(localStorage.getItem('tripboard_cards') || '[]');
+    saved.forEach(c => addCardFromData(c));
+  } catch(e) {}
+
+  // Enter key on city field
+  document.getElementById('add-city').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addCard();
+  });
+
+  // Save GNews key on blur
+  document.getElementById('gnews-key').addEventListener('blur', () => {
+    const v = document.getElementById('gnews-key').value.trim();
+    if (v) localStorage.setItem('gnews_key', v);
   });
 })();
 
@@ -565,151 +580,221 @@ let lastWeatherData = null;
 // ─────────────────────────────────────────────
 function toDateStr(d) { return d.toISOString().split('T')[0]; }
 
-function fmtDateRange(from, to) {
-  const opts = { month: 'long', day: 'numeric', year: 'numeric' };
-  const a = new Date(from + 'T12:00:00').toLocaleDateString('en-US', opts);
-  if (!to || to === from) return a;
-  const b = new Date(to + 'T12:00:00').toLocaleDateString('en-US', opts);
-  return `${a} – ${b}`;
+function fmtDate(str) {
+  if (!str) return '';
+  return new Date(str + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function cityCode(name) {
+  // 3-letter code from first word
+  return name.replace(/,.*/, '').trim().substring(0, 3).toUpperCase();
 }
 
 function timeAgo(iso) {
   if (!iso) return '';
   const ms = Date.now() - new Date(iso);
   const m = Math.floor(ms / 60000);
+  if (m < 2)  return 'just now';
   if (m < 60) return `${m}m ago`;
   if (m < 1440) return `${Math.floor(m/60)}h ago`;
   return `${Math.floor(m/1440)}d ago`;
 }
 
-function escHtml(s) {
-  return String(s||'')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function descToIcon(desc) {
-  const s = (desc||'').toLowerCase();
-  if (s.includes('thunder') || s.includes('storm')) return '⛈️';
-  if (s.includes('blizzard') || s.includes('blowing snow')) return '🌨️';
-  if (s.includes('snow') || s.includes('sleet') || s.includes('ice pellet')) return '❄️';
-  if (s.includes('freezing')) return '🌨️';
-  if (s.includes('heavy rain') || s.includes('torrential')) return '🌧️';
-  if (s.includes('drizzle') || s.includes('light rain') || s.includes('patchy rain')) return '🌦️';
-  if (s.includes('rain') || s.includes('shower')) return '🌧️';
-  if (s.includes('fog') || s.includes('mist') || s.includes('haze')) return '🌫️';
-  if (s.includes('overcast')) return '☁️';
-  if (s.includes('cloudy')) return '🌤️';
-  if (s.includes('partly') || s.includes('partial')) return '⛅';
-  if (s.includes('sunny') || s.includes('clear')) return '☀️';
-  return '🌡️';
 }
 
 function fmtTemp(f, unit) {
   const n = parseFloat(f);
+  if (isNaN(n)) return '--';
   if (unit === 'F') return Math.round(n) + '°';
   return Math.round((n - 32) * 5/9) + '°';
 }
 
-// ─────────────────────────────────────────────
-//  MAIN SEARCH
-// ─────────────────────────────────────────────
-async function runSearch() {
-  const city    = document.getElementById('city-input').value.trim();
-  const dateFrom = document.getElementById('date-from').value;
-  const dateTo   = document.getElementById('date-to').value;
-  const gnewsKey = document.getElementById('gnews-key').value.trim();
+function descToIcon(desc) {
+  const s = (desc||'').toLowerCase();
+  if (s.includes('thunder') || s.includes('storm'))    return '⛈️';
+  if (s.includes('blizzard'))                           return '🌨️';
+  if (s.includes('snow') || s.includes('sleet'))       return '❄️';
+  if (s.includes('freezing'))                           return '🌨️';
+  if (s.includes('heavy rain') || s.includes('torrential')) return '🌧️';
+  if (s.includes('drizzle') || s.includes('light rain') || s.includes('patchy rain')) return '🌦️';
+  if (s.includes('rain') || s.includes('shower'))      return '🌧️';
+  if (s.includes('fog') || s.includes('mist') || s.includes('haze')) return '🌫️';
+  if (s.includes('overcast'))                           return '☁️';
+  if (s.includes('cloudy'))                             return '🌤️';
+  if (s.includes('partly') || s.includes('partial'))   return '⛅';
+  if (s.includes('sunny') || s.includes('clear'))      return '☀️';
+  return '🌡️';
+}
 
-  if (!city) {
-    document.getElementById('city-input').focus();
-    return;
+function savecards() {
+  const slim = cards.map(c => ({ id: c.id, city: c.city, from: c.from, to: c.to }));
+  localStorage.setItem('tripboard_cards', JSON.stringify(slim));
+}
+
+function updateEmptyState() {
+  document.getElementById('board-empty').style.display =
+    cards.length === 0 ? 'flex' : 'none';
+}
+
+// ─────────────────────────────────────────────
+//  ADD CARD (from UI)
+// ─────────────────────────────────────────────
+function addCard() {
+  const city = document.getElementById('add-city').value.trim();
+  const from = document.getElementById('add-from').value;
+  const to   = document.getElementById('add-to').value;
+  const errEl = document.getElementById('add-err');
+  errEl.textContent = '';
+
+  if (!city) { errEl.textContent = '// city is required'; return; }
+  if (!from) { errEl.textContent = '// arrival date is required'; return; }
+  if (to && to < from) { errEl.textContent = '// departure must be after arrival'; return; }
+
+  const data = { id: Date.now(), city, from, to };
+  addCardFromData(data);
+
+  // reset form
+  document.getElementById('add-city').value = '';
+  document.getElementById('add-to').value = '';
+  document.getElementById('add-city').focus();
+}
+
+function addCardFromData(data) {
+  const entry = { ...data, resolvedName: data.city, weatherData: null };
+  cards.push(entry);
+  savecards();
+  updateEmptyState();
+
+  // Build DOM
+  const card = buildCardDOM(entry);
+  const board = document.getElementById('board');
+  const addCard = document.getElementById('add-card');
+  board.insertBefore(card, addCard);
+
+  // scroll to new card
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }), 50);
+
+  // Load data
+  const key = document.getElementById('gnews-key').value.trim();
+  loadWeather(entry.id, entry.city);
+  loadNews(entry.id, entry.city, key);
+}
+
+// ─────────────────────────────────────────────
+//  BUILD CARD DOM
+// ─────────────────────────────────────────────
+function buildCardDOM(entry) {
+  const el = document.createElement('div');
+  el.className = 'city-card';
+  el.dataset.id = entry.id;
+
+  const dateLabel = entry.to && entry.to !== entry.from
+    ? `${fmtDate(entry.from)} → ${fmtDate(entry.to)}`
+    : fmtDate(entry.from);
+
+  el.innerHTML = `
+    <div class="card-band">
+      <div class="card-code">${cityCode(entry.city)}</div>
+      <div class="card-city">${esc(entry.city)}</div>
+      <div class="card-dates">${esc(dateLabel)}</div>
+      <button class="card-remove" onclick="removeCard(${entry.id})" title="Remove">✕</button>
+    </div>
+    <div class="card-weather" id="cw-${entry.id}">${skeletonWeather()}</div>
+    <div class="card-news" id="cn-${entry.id}">${skeletonNews()}</div>
+  `;
+  return el;
+}
+
+function skeletonWeather() {
+  return `<div style="padding:14px 0 4px">
+    <div class="sk sk-line" style="width:40%;height:32px;margin-bottom:10px"></div>
+    <div class="sk sk-line" style="width:65%"></div>
+    <div class="sk sk-line" style="width:50%"></div>
+  </div>`;
+}
+
+function skeletonNews() {
+  return `<div style="padding:12px 16px">
+    <div class="sk sk-line" style="width:80%"></div>
+    <div class="sk sk-line" style="width:55%"></div>
+    <div class="sk sk-line" style="width:75%;margin-top:10px"></div>
+    <div class="sk sk-line" style="width:60%"></div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  REMOVE CARD
+// ─────────────────────────────────────────────
+function removeCard(id) {
+  cards = cards.filter(c => c.id !== id);
+  savecards();
+  const el = document.querySelector(`.city-card[data-id="${id}"]`);
+  if (el) {
+    el.style.transition = 'opacity 0.2s, transform 0.2s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-16px)';
+    setTimeout(() => el.remove(), 220);
   }
-
-  // Save key
-  if (gnewsKey) localStorage.setItem('gnews_key', gnewsKey);
-
-  // Show skeleton UI
-  document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('dest-header').style.display = 'block';
-  document.getElementById('dash-grid').style.display   = 'grid';
-
-  document.getElementById('dest-watermark').textContent = city;
-  document.getElementById('dest-city').textContent = city;
-  document.getElementById('dest-dates').textContent = dateFrom
-    ? fmtDateRange(dateFrom, dateTo || dateFrom) : '';
-
-  setSkeletonWeather();
-  setSkeletonNews();
-
-  // Fire in parallel
-  await Promise.all([
-    loadWeather(city),
-    loadNews(city, gnewsKey)
-  ]);
+  updateEmptyState();
 }
 
 // ─────────────────────────────────────────────
-//  WEATHER — wttr.in (CORS-safe, no key)
+//  WEATHER — wttr.in
 // ─────────────────────────────────────────────
-function setSkeletonWeather() {
-  document.getElementById('weather-body').innerHTML = `
-    <div style="padding:20px">
-      <div class="sk sk-line" style="width:50%"></div>
-      <div class="sk sk-line" style="width:30%"></div>
-      <div class="sk sk-line" style="width:65%; margin-top:16px"></div>
-      <div class="sk sk-line" style="width:40%"></div>
-    </div>`;
-}
-
-async function loadWeather(city) {
-  const body = document.getElementById('weather-body');
+async function loadWeather(id, city) {
+  const el = document.getElementById(`cw-${id}`);
+  if (!el) return;
   try {
-    const url = `https://wttr.in/${encodeURIComponent(city)}?format=j1`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`Weather service returned ${r.status}`);
+    const r = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
 
-    // Update city display with resolved name
+    // Update resolved name + card code
     const area = d.nearest_area?.[0];
     if (area) {
       const resolvedCity    = area.areaName?.[0]?.value || city;
       const resolvedCountry = area.country?.[0]?.value || '';
       const resolvedRegion  = area.region?.[0]?.value  || '';
       const full = [resolvedCity, resolvedRegion, resolvedCountry].filter(Boolean).join(', ');
-      document.getElementById('dest-city').textContent = full;
-      document.getElementById('dest-watermark').textContent = resolvedCity;
+      const card = document.querySelector(`.city-card[data-id="${id}"]`);
+      if (card) {
+        card.querySelector('.card-city').textContent = full;
+        card.querySelector('.card-code').textContent = cityCode(resolvedCity);
+      }
+      const entry = cards.find(c => c.id === id);
+      if (entry) { entry.resolvedName = full; entry.weatherData = d; }
     }
 
-    lastWeatherData = d;
-    body.innerHTML = renderWeather(d, tempUnit);
-    body.classList.add('fade-in');
+    el.innerHTML = renderWeather(d, tempUnit);
+    // flip animation on temp
+    const tempEl = el.querySelector('.w-temp');
+    if (tempEl) { tempEl.classList.remove('flip'); void tempEl.offsetWidth; tempEl.classList.add('flip'); }
+
   } catch(e) {
-    body.innerHTML = `<div class="err-msg">
-      Could not load weather for <strong>${escHtml(city)}</strong>.<br>
-      Try a more specific city name, e.g. "Paris, France" or "Springfield, IL".<br><br>
-      <em>Detail: ${escHtml(e.message)}</em>
-    </div>`;
+    el.innerHTML = `<div class="card-notice err">⚠ ${esc(e.message)}<br>
+      <span style="color:var(--muted);font-size:0.68rem">Check the city name and try again.</span></div>`;
   }
 }
 
 function renderWeather(d, unit) {
   const cur   = d.current_condition?.[0];
   const daily = d.weather || [];
-  if (!cur) return `<div class="err-msg">Unexpected data from weather service.</div>`;
+  if (!cur) return `<div class="card-notice err">No weather data.</div>`;
 
-  const tempF = cur.temp_F;
-  const desc  = cur.weatherDesc?.[0]?.value || '';
-  const icon  = descToIcon(desc);
-  const wind  = cur.windspeedMiles;
-  const humidity = cur.humidity;
-  const feelsF   = cur.FeelsLikeF;
-  const visKm    = cur.visibility;
+  const desc = cur.weatherDesc?.[0]?.value || '';
+  const icon = descToIcon(desc);
+  const wind = cur.windspeedMiles;
+  const hum  = cur.humidity;
+  const feels = cur.FeelsLikeF;
+  const vis  = cur.visibility;
 
-  // 3-day forecast
   const fcHTML = daily.slice(0,3).map(day => {
     const dt = new Date(day.date + 'T12:00:00');
     const fdesc = day.hourly?.[4]?.weatherDesc?.[0]?.value || '';
-    return `<div class="fc-slot">
+    return `<div class="fc">
       <div class="fc-day">${dt.toLocaleDateString('en-US',{weekday:'short'})}</div>
       <div class="fc-ico">${descToIcon(fdesc)}</div>
       <div class="fc-hi">${fmtTemp(day.maxtempF, unit)}</div>
@@ -717,95 +802,87 @@ function renderWeather(d, unit) {
     </div>`;
   }).join('');
 
-  return `<div class="card-body" style="padding:20px">
-    <div class="weather-now">
+  return `
+    <div class="w-current">
       <div class="w-icon">${icon}</div>
-      <div>
-        <div class="w-temp">${fmtTemp(tempF, unit)}</div>
-        <div class="w-desc">${escHtml(desc)}</div>
+      <div class="w-right">
+        <div class="w-temp flip">${fmtTemp(cur.temp_F, unit)}</div>
+        <div class="w-desc">${esc(desc)}</div>
       </div>
     </div>
     <div class="w-meta">
-      <div class="w-meta-item">💧 <span>${humidity}% humidity</span></div>
-      <div class="w-meta-item">💨 <span>${wind} mph</span></div>
-      <div class="w-meta-item">🌡 <span>Feels ${fmtTemp(feelsF, unit)}</span></div>
-      <div class="w-meta-item">👁 <span>${visKm} km vis.</span></div>
+      <div class="w-meta-row">💧 <span class="w-meta-val">${hum}%</span></div>
+      <div class="w-meta-row">💨 <span class="w-meta-val">${wind} mph</span></div>
+      <div class="w-meta-row">🌡 <span class="w-meta-val">feels ${fmtTemp(feels, unit)}</span></div>
+      <div class="w-meta-row">👁 <span class="w-meta-val">${vis} km</span></div>
     </div>
-    <div class="forecast-strip">${fcHTML}</div>
-  </div>`;
+    <div class="forecast">${fcHTML}</div>
+  `;
 }
 
 // ─────────────────────────────────────────────
-//  TEMP UNIT TOGGLE
+//  NEWS — GNews
 // ─────────────────────────────────────────────
-function setUnit(unit) {
-  tempUnit = unit;
-  document.getElementById('btn-f').classList.toggle('active', unit === 'F');
-  document.getElementById('btn-c').classList.toggle('active', unit === 'C');
-  if (lastWeatherData) {
-    document.getElementById('weather-body').innerHTML = renderWeather(lastWeatherData, unit);
-  }
-}
-
-// ─────────────────────────────────────────────
-//  NEWS — GNews API (CORS-safe, free key)
-// ─────────────────────────────────────────────
-function setSkeletonNews() {
-  document.getElementById('news-body').innerHTML = `
-    <div style="padding:20px">
-      ${[80,55,75,50,85].map(w=>`<div class="sk sk-line" style="width:${w}%;margin-bottom:12px"></div>`).join('')}
-    </div>`;
-}
-
-async function loadNews(city, key) {
-  const body = document.getElementById('news-body');
-  const tag  = document.getElementById('news-location-tag');
+async function loadNews(id, city, key) {
+  const el = document.getElementById(`cn-${id}`);
+  if (!el) return;
 
   if (!key) {
-    body.innerHTML = `<div class="no-key">
-      Add a free <a href="https://gnews.io/register" target="_blank">GNews API key</a>
-      above to see local headlines.<br>Takes about 30 seconds to sign up.
+    el.innerHTML = `<div class="card-notice">
+      // headlines require a free
+      <a href="https://gnews.io/register" target="_blank">GNews key</a>
+      — paste it in the header above.
     </div>`;
     return;
   }
 
   try {
-    // Search for news about this city
     const q = encodeURIComponent(`"${city}"`);
-    const url = `https://gnews.io/api/v4/search?q=${q}&lang=en&max=7&apikey=${encodeURIComponent(key)}`;
+    const url = `https://gnews.io/api/v4/search?q=${q}&lang=en&max=6&apikey=${encodeURIComponent(key)}`;
     const r = await fetch(url);
     const d = await r.json();
-
     if (d.errors) throw new Error(d.errors.join(', '));
-    const articles = d.articles || [];
-    tag.textContent = articles.length ? `${articles.length} stories` : '';
 
+    const articles = d.articles || [];
     if (!articles.length) {
-      body.innerHTML = `<div class="no-key">No recent headlines found for <strong>${escHtml(city)}</strong>. Try a broader city name.</div>`;
+      el.innerHTML = `<div class="card-notice">// no recent headlines found</div>`;
       return;
     }
 
-    body.innerHTML = articles.map((a, i) => `
-      <a class="news-item fade-in" href="${escHtml(a.url)}" target="_blank" rel="noopener"
-         style="animation-delay:${i*0.05}s">
-        <div class="news-num">${i+1}</div>
-        <div class="news-content">
-          <div class="news-title">${escHtml(a.title)}</div>
-          <div class="news-meta">
-            <span class="news-source">${escHtml(a.source?.name || '')}</span>
-            <span class="news-age">${timeAgo(a.publishedAt)}</span>
-          </div>
-        </div>
-      </a>
-    `).join('');
-
+    el.innerHTML = `
+      <div class="news-hdr">
+        <span class="news-hdr-label">// headlines</span>
+        <span class="news-count">${articles.length} stories</span>
+      </div>
+      <div class="news-list">
+        ${articles.map(a => `
+          <a class="news-item" href="${esc(a.url)}" target="_blank" rel="noopener">
+            <div class="news-title">${esc(a.title)}</div>
+            <div class="news-byline">
+              <span class="news-src">${esc(a.source?.name||'')}</span>
+              <span class="news-age">${timeAgo(a.publishedAt)}</span>
+            </div>
+          </a>
+        `).join('')}
+      </div>`;
   } catch(e) {
-    body.innerHTML = `<div class="err-msg">
-      Could not load news.<br>
-      Check your GNews API key or try again in a moment.<br><br>
-      <em>Detail: ${escHtml(e.message)}</em>
-    </div>`;
+    el.innerHTML = `<div class="card-notice err">⚠ News: ${esc(e.message)}</div>`;
   }
+}
+
+// ─────────────────────────────────────────────
+//  UNIT TOGGLE — re-render all weather
+// ─────────────────────────────────────────────
+function setUnit(unit) {
+  tempUnit = unit;
+  document.getElementById('btn-f').classList.toggle('active', unit === 'F');
+  document.getElementById('btn-c').classList.toggle('active', unit === 'C');
+  cards.forEach(c => {
+    if (c.weatherData) {
+      const el = document.getElementById(`cw-${c.id}`);
+      if (el) el.innerHTML = renderWeather(c.weatherData, unit);
+    }
+  });
 }
 </script>
 </body>
